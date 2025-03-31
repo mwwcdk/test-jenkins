@@ -35,7 +35,7 @@ pipeline {
         docker {
             image 'maven:3.9.9-eclipse-temurin-21-alpine'
             // 修正路径转义方式（两种方案）
-            args "-v /d/Program\\ Files/Jenkins/.jenkins/workspace:/jenkins_workspace"  // 使用双反斜杠转义
+            args "-v ${WORKSPACE}:/jenkins_workspace"  // 自动适配路径格式
             // 或改用正斜杠避免转义（推荐）
             // args "-v /d/Program Files/Jenkins/.jenkins/workspace:/jenkins_workspace"
             reuseNode true
