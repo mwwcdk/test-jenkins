@@ -1,8 +1,8 @@
 pipeline {
     agent any  // 必须声明全局 agent 以初始化 WORKSPACE
     environment {
-        // 使用 replaceAll 彻底替换路径中的反斜杠和空格
-        HOST_WORKSPACE = "\"${env.WORKSPACE.replaceAll('\\\\', '/').toLowerCase()}\""
+        // 替换反斜杠为 Linux 路径格式，并强制全小写
+        HOST_WORKSPACE = "/${env.WORKSPACE.replaceAll('\\\\', '/').replace(' ', '_').toLowerCase()}"
     }
     stages {
         stage('Build') {
@@ -16,9 +16,7 @@ pipeline {
             steps {
                 script {
                     echo "宿主机路径：${HOST_WORKSPACE}"
-                }
-                dir('/jenkins_workspace') {
-                    sh 'pwd && ls -al'
+                    sh "docker run --rm -v ${HOST_WORKSPACE}:/test alpine ls /test"
                 }
             }
         }
