@@ -1,8 +1,8 @@
 pipeline {
     agent any  // 必须声明全局 agent 以初始化 WORKSPACE
     environment {
-        // 显式定义宿主机路径变量（适配 Windows/Linux）
-        HOST_WORKSPACE = "${env.WORKSPACE}".replace('\\', '/')
+        // 处理路径大小写和空格（Windows 需双引号包裹）
+        HOST_WORKSPACE = "\"${env.WORKSPACE.replace('\\', '/').toLowerCase()}\""
     }
     stages {
         stage('Build') {
