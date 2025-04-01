@@ -1,48 +1,18 @@
-/* Requires the Docker Pipeline plugin */
-// pipeline {
-//     agent { docker { image 'maven:3.9.9-eclipse-temurin-21-alpine' } }
-//     stages {
-//         stage('build') {
-//             steps {
-//                 sh 'mvn --version'
-//             }
-//         }
-//     }
-// }
-
-// pipeline {
-//     agent {
-//         docker {
-//             image 'maven:3.9.9-eclipse-temurin-21-alpine'
-//             // 关键参数优化
-//             args '-v /d/Program\ Files/Jenkins/.jenkins/workspace:/jenkins_workspace'  // 路径转义处理
-//             reuseNode true  // 强制使用同一节点（网页1）
-//         }
-//     }
-//     stages {
-//         stage('build') {
-//             steps {
-//                 dir('/jenkins_workspace/My-Pipeline_master') {  // 容器内绝对路径
-//                     sh 'mvn --version'
-//                 }
-//             }
-//         }
-//     }
-// }
-
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.9-eclipse-temurin-21-alpine'
-            // 修正路径转义方式（两种方案）
-            args "-v ${WORKSPACE}:/jenkins_workspace"  // 自动适配路径格式
-            // 或改用正斜杠避免转义（推荐）
-            // args "-v /d/Program Files/Jenkins/.jenkins/workspace:/jenkins_workspace"
-            reuseNode true
-        }
+    agent any  // 必须声明全局 agent 以初始化 WORKSPACE
+    environment {
+        // 显式定义宿主机路径变量（适配 Windows/Linux）
+        HOST_WORKSPACE = "${env.WORKSPACE}".replace('\\', '/')
     }
     stages {
-        stage('build') {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'maven:3.9.9-eclipse-temurin-21-alpine'
+                    args "-v ${HOST_WORKSPACE}:/jenkins_workspace"
+                    reuseNode true
+                }
+            }
             steps {
                 dir('/jenkins_workspace/My-Pipeline_master') {
                     sh 'mvn --version'
